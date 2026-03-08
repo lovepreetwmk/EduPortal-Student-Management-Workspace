@@ -1,166 +1,143 @@
-let inventory = JSON.parse(localStorage.getItem("inventory")) || [];
+const form = document.getElementById("productForm");
+const container = document.getElementById("container");
+const searchInput = document.getElementById("search");
+const imageInput = document.getElementById("image");
+const themeBtn = document.getElementById('themeToggle');
 
-// --- INITIALIZE ---
-document.addEventListener('DOMContentLoaded', () => {
-    updateDisplay(inventory);
-    setupTheme();
-});
+// Global Data State
+let products = JSON.parse(localStorage.getItem("products")) || [];
 
-// --- THEME LOGIC ---
-function setupTheme() {
-    const savedTheme = localStorage.getItem('materialTheme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-}
+// --- 1. IMAGE PREVIEW LOGIC ---
+imageInput.addEventListener("change", function () {
+  const file = this.files[0];
+  const dropZone = document.querySelector(".drop-zone");
 
-document.getElementById('themeToggle').addEventListener('click', () => {
-    let current = document.documentElement.getAttribute('data-theme');
-    let next = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('materialTheme', next);
-});
-
-// --- IMAGE PREVIEW ---
-function previewImage(event) {
-    const file = event.target.files[0];
-    const preview = document.getElementById('img-preview');
-    const placeholder = document.getElementById('upload-placeholder');
-
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            preview.src = e.target.result;
-            preview.classList.remove('hidden-img');
-            placeholder.style.display = 'none';
-        };
-        reader.readAsDataURL(file);
-    }
-}
-
-// --- UPDATED ADD ITEM (Registration Logic) ---
-function addItem() {
-    // 1. Grab elements
-    const nameInput = document.getElementById("itemName");
-    const codeInput = document.getElementById("itemCode");
-    const descInput = document.getElementById("itemDesc");
-    const fileInput = document.getElementById("imageInput");
-    const submitBtn = document.querySelector(".submit-btn");
-
-    // 2. Extract values
-    const name = nameInput.value.trim();
-    const code = codeInput.value.trim();
-    const desc = descInput.value.trim();
-    const imgFile = fileInput.files[0];
-
-    // 3. Validation - Ensure mandatory fields are present
-    if (!name || !code || !imgFile) {
-        alert("Registration Failed: Please provide Name, SKU, and a Product Photo.");
-        return;
-    }
-
-    // 4. Visual Feedback
-    submitBtn.innerText = "Processing...";
-    submitBtn.disabled = true;
-
-    // 5. Read file and save
+  if (file) {
     const reader = new FileReader();
-    
-    reader.onload = function (e) {
-        try {
-            const newItem = {
-                id: Date.now(),
-                name: name,
-                code: code,
-                description: desc || "No description provided.",
-                image: e.target.result // The base64 data
-            };
-
-            inventory.push(newItem);
-            
-            // Save to LocalStorage
-            localStorage.setItem("inventory", JSON.stringify(inventory));
-            
-            // Update the UI
-            updateDisplay(inventory);
-            
-            // Reset Form
-            resetForm();
-            
-            // Reset Button
-            submitBtn.innerText = "Add to Inventory";
-            submitBtn.disabled = false;
-            
-        } catch (error) {
-            console.error("Storage Error:", error);
-            alert("Storage full or error occurred. Try a smaller image.");
-            submitBtn.innerText = "Add to Inventory";
-            submitBtn.disabled = false;
-        }
+    reader.onload = (e) => {
+      // Apply the background preview
+      dropZone.style.backgroundImage = `url(${e.target.result})`;
+      dropZone.style.backgroundSize = "cover";
+      dropZone.style.backgroundPosition = "center";
+      // Hide the default upload icons
+      dropZone.querySelector("i").style.display = "none";
+      dropZone.querySelector("p").style.display = "none";
+      dropZone.classList.add("has-image");
     };
+    reader.readAsDataURL(file);
+  }
+});
 
-    reader.onerror = function() {
-        alert("Could not read the image file.");
-        submitBtn.disabled = false;
-    };
+const resetPreview = () => {
+  const dropZone = document.querySelector(".drop-zone");
+  dropZone.style.backgroundImage = "none";
+  dropZone.querySelector("i").style.display = "block";
+  dropZone.querySelector("p").style.display = "block";
+  dropZone.classList.remove("has-image");
+};
 
-    reader.readAsDataURL(imgFile);
-}
+// --- 2. DISPLAY PRODUCTS ---
+function displayProducts(data) {
+  container.innerHTML = "";
 
-// --- UI UPDATE ---
-function updateDisplay(data) {
-    const grid = document.getElementById("productGrid");
-    const stats = document.getElementById("stats-display");
-    
-    grid.innerHTML = "";
-    if (stats) stats.innerText = `${inventory.length} Items In Stock`;
+  // Show newest first for better UX
+  [...data].reverse().forEach((product, index) => {
+    const actualIndex = data.length - 1 - index;
 
-    if (data.length === 0) {
-        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 50px; opacity: 0.5;">No items found.</div>`;
-        return;
-    }
-
-    data.forEach(item => {
-        const card = `
-            <div class="item-card">
-                <div class="card-header">
-                    <span class="card-id">ID: ${item.id.toString().slice(-4)}</span>
-                    <button class="del-btn" onclick="deleteItem(${item.id})">Remove</button>
-                    <img src="${item.image}" alt="${item.name}">
-                </div>
-                <div class="card-content">
-                    <h4>${item.name}</h4>
-                    <span class="sku-badge">${item.code}</span>
-                    <p>${item.description}</p>
+    const card = document.createElement("div");
+    card.classList.add("card");
+    card.innerHTML = `
+            <div class="card-img-wrapper">
+                <img src="${product.image}" alt="${product.name}" loading="lazy">
+            </div>
+            <div class="card-content">
+                <span class="card-brand">${product.name}</span>
+                <h4>${product.title}</h4>
+                <p>${product.desc}</p>
+                <div class="card-footer">
+                    <button class="delete-btn" onclick="deleteProduct(${actualIndex})">
+                        <i class="fa-solid fa-trash-can"></i> Remove
+                    </button>
                 </div>
             </div>
         `;
-        grid.insertAdjacentHTML('beforeend', card);
-    });
+    container.appendChild(card);
+  });
 }
 
-// --- ACTIONS ---
-function searchItems() {
-    const query = document.getElementById("searchInput").value.toLowerCase();
-    const filtered = inventory.filter(i => 
-        i.name.toLowerCase().includes(query) || i.code.toLowerCase().includes(query)
-    );
-    updateDisplay(filtered);
+// --- 3. DELETE PRODUCT ---
+window.deleteProduct = (index) => {
+  if (confirm("Permanently remove this item from inventory?")) {
+    products.splice(index, 1);
+    localStorage.setItem("products", JSON.stringify(products));
+    displayProducts(products);
+  }
+};
+
+// --- 4. THEME TOGGLE ---
+themeBtn.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  themeBtn.innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+  localStorage.setItem('dashboard-theme', isDark ? 'dark' : 'light');
+});
+
+// Load saved theme preference
+if (localStorage.getItem('dashboard-theme') === 'dark') {
+  document.body.classList.add('dark-mode');
+  themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
 }
 
-function deleteItem(id) {
-    if (confirm("Permanently remove this item?")) {
-        inventory = inventory.filter(item => item.id !== id);
-        localStorage.setItem("inventory", JSON.stringify(inventory));
-        updateDisplay(inventory);
-    }
-}
+// --- 5. ADD PRODUCT ---
+form.addEventListener("submit", function (e) {
+  e.preventDefault();
 
-function resetForm() {
-    document.getElementById("itemName").value = "";
-    document.getElementById("itemCode").value = "";
-    document.getElementById("itemDesc").value = "";
-    document.getElementById("imageInput").value = "";
-    const preview = document.getElementById("img-preview");
-    preview.src = "";
-    preview.classList.add('hidden-img');
-    document.getElementById("upload-placeholder").style.display = 'block';
-}
+  const imageFile = imageInput.files[0];
+  const name = document.getElementById("name").value;
+  const title = document.getElementById("title").value;
+  const desc = document.getElementById("desc").value;
+
+  const reader = new FileReader();
+  reader.onload = function (event) {
+    const img = new Image();
+    img.src = event.target.result;
+
+    img.onload = function () {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      // Quality optimization: 400x400 Square
+      canvas.width = 400;
+      canvas.height = 400;
+      ctx.drawImage(img, 0, 0, 400, 400);
+
+      const product = {
+        image: canvas.toDataURL("image/jpeg", 0.75),
+        name,
+        title,
+        desc
+      };
+
+      products.push(product);
+      localStorage.setItem("products", JSON.stringify(products));
+
+      displayProducts(products);
+      form.reset();
+      resetPreview();
+    };
+  };
+  reader.readAsDataURL(imageFile);
+});
+
+// --- 6. SEARCH FUNCTION ---
+searchInput.addEventListener("input", () => {
+  const value = searchInput.value.toLowerCase();
+  const filtered = products.filter(p =>
+    p.name.toLowerCase().includes(value) ||
+    p.title.toLowerCase().includes(value)
+  );
+  displayProducts(filtered);
+});
+
+// Initial Render
+displayProducts(products);

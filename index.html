@@ -3,89 +3,127 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MaterialPortal | Inventory Management</title>
+    <title>ProManager Pro | Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
     <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
-  <body>
-    <nav class="navbar">
-      <div class="container nav-content">
-        <div class="logo">Material<span>Portal</span></div>
-        <div class="nav-right">
-          <div class="stats" id="stats-display">0 Items In Stock</div>
-          <button class="theme-btn" id="themeToggle">
-            <span class="mode-text">Toggle Theme</span>
-          </button>
+
+  <body class="light-mode">
+    <div class="dashboard-wrapper">
+      <aside class="control-panel">
+        <div class="brand-area">
+          <div class="brand-logo">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+          <h1>Inventory<span>OS</span></h1>
         </div>
-      </div>
-    </nav>
 
-    <main class="container main-layout">
-      <aside class="sidebar">
-        <div class="card form-card">
-          <h2>New Item Entry</h2>
+        <div class="form-card">
+          <div class="form-header">
+            <i class="fa-solid fa-square-plus"></i>
+            <span>Create Product</span>
+          </div>
 
-          <div class="form-group">
-            <label>Product Image</label>
-            <div
-              class="upload-area"
-              onclick="document.getElementById('imageInput').click()"
-            >
-              <input
-                type="file"
-                id="imageInput"
-                accept="image/*"
-                hidden
-                onchange="previewImage(event)"
-              />
-              <div id="upload-placeholder">
-                <div class="icon-placeholder">📸</div>
-                <p>Click to Upload</p>
+          <form id="productForm">
+            <div class="field">
+              <label>Product Image</label>
+              <div class="drop-zone">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <p>Click to upload image</p>
+                <input type="file" id="image" accept="image/*" required />
               </div>
-              <img id="img-preview" src="" class="hidden-img" />
             </div>
-          </div>
 
-          <div class="form-group">
-            <label>Item Name</label>
-            <input
-              type="text"
-              id="itemName"
-              placeholder="e.g., Industrial Valve"
-            />
-          </div>
+            <div class="field">
+              <label>Brand Name</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-tag"></i>
+                <input
+                  type="text"
+                  id="name"
+                  placeholder="e.g., Apple, Nike..."
+                  required
+                />
+              </div>
+            </div>
 
-          <div class="form-group">
-            <label>Item Code / SKU</label>
-            <input type="text" id="itemCode" placeholder="SKU-9901" />
-          </div>
+            <div class="field">
+              <label>Product Title</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-heading"></i>
+                <input
+                  type="text"
+                  id="title"
+                  placeholder="e.g., iPhone 15 Pro..."
+                  required
+                />
+              </div>
+            </div>
 
-          <div class="form-group">
-            <label>Description</label>
-            <textarea
-              id="itemDesc"
-              placeholder="Enter specifications..."
-            ></textarea>
-          </div>
+            <div class="field">
+              <label>Details</label>
+              <textarea
+                id="desc"
+                placeholder="Briefly describe the product features..."
+                rows="3"
+              ></textarea>
+            </div>
 
-          <button class="submit-btn" onclick="addItem()">
-            Add to Inventory
-          </button>
+            <button type="submit" class="submit-btn">
+              <span>Deploy Product</span>
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </form>
         </div>
       </aside>
 
-      <section class="content-area">
-        <div class="search-container">
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="Search by name or code..."
-            onkeyup="searchItems()"
-          />
-        </div>
+      <main class="content-view">
+        <header class="glass-nav">
+          <div class="search-bar">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input
+              type="text"
+              id="search"
+              placeholder="Search inventory catalog..."
+            />
+          </div>
 
-        <div class="product-grid" id="productGrid"></div>
-      </section>
-    </main>
+          <div class="nav-actions">
+            <button
+              id="themeToggle"
+              class="icon-btn"
+              title="Toggle Light/Dark Mode"
+            >
+              <i class="fa-solid fa-moon"></i>
+            </button>
+            <div class="divider"></div>
+            <div class="admin-profile">
+              <i class="fa-solid fa-user-gear"></i>
+            </div>
+          </div>
+        </header>
+
+        <section class="gallery-wrapper">
+          <div class="inventory-status">
+            <h2>Live Catalog</h2>
+            <div class="status-indicator">
+              <span class="dot"></span>
+              <i class="fa-solid fa-rotate spin"></i>
+              Synced with LocalStorage
+            </div>
+          </div>
+
+          <div id="container"></div>
+        </section>
+      </main>
+    </div>
 
     <script src="script.js"></script>
   </body>
