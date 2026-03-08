@@ -3,16 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EduPortal | Admin Dashboard</title>
+    <title>Inventory | Product Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = { darkMode: "class" };
     </script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-      /* Custom scrollbar for the student list section */
       .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
+        width: 5px;
       }
       .custom-scrollbar::-webkit-scrollbar-track {
         background: transparent;
@@ -24,45 +23,56 @@
       .dark .custom-scrollbar::-webkit-scrollbar-thumb {
         background: #334155;
       }
+      body {
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+      }
     </style>
   </head>
   <body
-    class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 h-screen overflow-hidden transition-colors duration-300 font-sans"
+    class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen lg:h-screen lg:overflow-hidden font-sans"
   >
     <nav
-      class="w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 h-[80px] flex items-center z-50"
+      class="sticky top-0 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 h-[80px] flex items-center z-50"
     >
       <div
         class="max-w-[1600px] w-full mx-auto px-6 md:px-10 flex justify-between items-center"
       >
-        <div>
-          <h1
-            class="text-3xl font-black tracking-tight text-slate-900 dark:text-white leading-none"
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/30"
           >
-            <span class="text-blue-600">Edu</span>Portal
-          </h1>
-          <p
-            class="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1"
-          >
-            Student Management Workspace
-          </p>
+            <i data-lucide="package"></i>
+          </div>
+          <div>
+            <h1
+              class="text-2xl font-black tracking-tighter leading-none uppercase"
+            >
+              M<span class="text-indigo-600">aterial</span>
+            </h1>
+          </div>
         </div>
 
-        <div class="flex items-center gap-6">
-          <div class="hidden md:block text-right">
+        <div class="flex items-center gap-4">
+          <div
+            class="hidden md:block text-right border-r border-slate-200 dark:border-slate-700 pr-4"
+          >
             <p
-              class="text-sm font-bold text-blue-600 dark:text-blue-400"
+              class="text-sm font-bold text-indigo-600 dark:text-indigo-400"
               id="stats-count"
             >
-              0 Students
+              0 Items
             </p>
-            <p class="text-[10px] uppercase tracking-widest text-slate-400">
-              Database Active
+            <p
+              class="text-[9px] uppercase font-medium text-slate-400 tracking-tighter"
+            >
+              Live Inventory
             </p>
           </div>
           <button
             id="themeToggle"
-            class="p-3 rounded-2xl bg-white dark:bg-slate-800 shadow-lg border border-slate-200 dark:border-slate-700 hover:scale-110 transition-all"
+            class="p-3 rounded-2xl bg-white dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 hover:scale-110 transition-all"
           >
             <i
               data-lucide="sun"
@@ -77,53 +87,29 @@
       </div>
     </nav>
 
-    <main class="max-w-[1600px] mx-auto p-6 md:p-10 h-[calc(100vh-80px)]">
-      <div class="grid grid-cols-1 xl:grid-cols-12 gap-10 h-full">
-        <section class="xl:col-span-4 h-full">
+    <main class="max-w-[1600px] mx-auto p-4 md:p-8 lg:h-[calc(100vh-80px)]">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
+        <section class="lg:col-span-4 h-full">
           <div
-            class="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-700 h-full flex flex-col"
+            class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-700 h-full flex flex-col"
           >
-            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
-              <div class="p-2 bg-blue-600 rounded-lg text-white">
-                <i data-lucide="user-plus" class="w-5 h-5"></i>
-              </div>
-              Registration
+            <h2
+              class="text-xl font-bold mb-6 flex items-center gap-3 text-slate-700 dark:text-slate-200"
+            >
+              <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-500"></i>
+              New Product Entry
             </h2>
 
-            <div class="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
-              <div class="space-y-1">
+            <div
+              class="space-y-6 lg:flex-1 lg:overflow-y-auto pr-2 custom-scrollbar"
+            >
+              <div class="space-y-2">
                 <label
-                  class="text-[10px] font-bold text-slate-400 uppercase ml-1"
-                  >Full Name</label
-                >
-                <input
-                  type="text"
-                  id="name"
-                  placeholder="John Doe"
-                  class="w-full px-4 py-3 rounded-xl border dark:bg-slate-900 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                />
-              </div>
-
-              <div class="space-y-1">
-                <label
-                  class="text-[10px] font-bold text-slate-400 uppercase ml-1"
-                  >Roll Number</label
-                >
-                <input
-                  type="text"
-                  id="roll"
-                  placeholder="2024-CSE-01"
-                  class="w-full px-4 py-3 rounded-xl border dark:bg-slate-900 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                />
-              </div>
-
-              <div class="space-y-1">
-                <label
-                  class="text-[10px] font-bold text-slate-400 uppercase ml-1"
-                  >Photo Preview</label
+                  class="text-[11px] font-black text-slate-400 uppercase ml-1 tracking-widest"
+                  >Step 1: Upload Product Photo</label
                 >
                 <div
-                  class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-center relative min-h-[140px] flex items-center justify-center bg-slate-50 dark:bg-slate-900/50"
+                  class="group border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-3xl p-2 text-center relative h-48 flex items-center justify-center bg-slate-50 dark:bg-slate-900/30 hover:border-indigo-400 hover:bg-indigo-50/30 transition-all cursor-pointer overflow-hidden"
                 >
                   <input
                     type="file"
@@ -137,63 +123,109 @@
                     id="preview-placeholder"
                     class="flex flex-col items-center"
                   >
-                    <i
-                      data-lucide="camera"
-                      class="w-8 h-8 mb-2 text-slate-400"
-                    ></i>
-                    <p class="text-xs text-slate-400">Upload Image</p>
+                    <div
+                      class="w-16 h-16 bg-white dark:bg-slate-800 rounded-2xl shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform"
+                    >
+                      <i
+                        data-lucide="image-plus"
+                        class="w-8 h-8 text-indigo-500"
+                      ></i>
+                    </div>
+                    <p
+                      class="text-sm font-bold text-slate-500 dark:text-slate-400"
+                    >
+                      Click to Select
+                    </p>
+                    <p class="text-[10px] text-slate-400 mt-1 uppercase">
+                      PNG, JPG up to 5MB
+                    </p>
                   </div>
 
                   <img
                     id="image-preview"
-                    class="hidden w-24 h-24 object-cover rounded-xl shadow-md border-2 border-blue-500"
+                    class="hidden w-full h-full object-cover rounded-2xl transition-all duration-500"
                   />
+
+                  <div
+                    id="edit-overlay"
+                    class="hidden absolute bottom-2 right-2 bg-black/60 backdrop-blur-md text-white px-3 py-1.5 rounded-xl text-[10px] font-bold z-20"
+                  >
+                    Change Photo
+                  </div>
                 </div>
               </div>
 
-              <div class="space-y-1">
-                <label
-                  class="text-[10px] font-bold text-slate-400 uppercase ml-1"
-                  >Notes</label
-                >
-                <textarea
-                  id="desc"
-                  placeholder="Brief bio..."
-                  class="w-full px-4 py-3 rounded-xl border dark:bg-slate-900 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none h-24 transition-all resize-none"
-                ></textarea>
+              <div class="space-y-4">
+                <div class="space-y-1">
+                  <label
+                    class="text-[10px] font-black text-slate-400 uppercase ml-1"
+                    >Product Name</label
+                  >
+                  <input
+                    type="text"
+                    id="name"
+                    placeholder="E.g. Mechanical Keyboard"
+                    class="w-full px-4 py-3 rounded-xl border dark:bg-slate-900 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                  />
+                </div>
+
+                <div class="space-y-1">
+                  <label
+                    class="text-[10px] font-black text-slate-400 uppercase ml-1"
+                    >SKU / Item Code</label
+                  >
+                  <input
+                    type="text"
+                    id="roll"
+                    placeholder="MK-2024-RGB"
+                    class="w-full px-4 py-3 rounded-xl border dark:bg-slate-900 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                  />
+                </div>
+
+                <div class="space-y-1">
+                  <label
+                    class="text-[10px] font-black text-slate-400 uppercase ml-1"
+                    >Specifications</label
+                  >
+                  <textarea
+                    id="desc"
+                    placeholder="Model number, color, or batch details..."
+                    class="w-full px-4 py-3 rounded-xl border dark:bg-slate-900 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none h-24 transition-all resize-none"
+                  ></textarea>
+                </div>
               </div>
             </div>
 
             <button
-              onclick="addStudent()"
-              class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-4 rounded-2xl shadow-lg shadow-blue-500/30 active:scale-[0.97] transition-all flex justify-center items-center gap-2"
+              onclick="addProduct()"
+              class="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 rounded-2xl shadow-lg shadow-indigo-500/20 active:scale-95 transition-all flex justify-center items-center gap-2"
             >
-              <i data-lucide="plus-circle" class="w-5 h-5"></i>
-              Register
+              <i data-lucide="package-plus" class="w-5 h-5"></i>
+              Add to Stock
             </button>
           </div>
         </section>
 
-        <section class="xl:col-span-8 h-full flex flex-col">
+        <section class="lg:col-span-8 h-full flex flex-col">
           <div class="mb-6">
-            <div class="relative w-full">
+            <div class="relative w-full group">
               <i
                 data-lucide="search"
-                class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
+                class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors"
               ></i>
               <input
                 type="text"
                 id="search"
-                placeholder="Search students..."
-                onkeyup="searchStudent()"
-                class="w-full pl-14 pr-6 py-4 rounded-2xl border-none bg-white dark:bg-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none focus:ring-2 focus:ring-blue-500 outline-none text-lg"
+                placeholder="Search Inventory..."
+                onkeyup="searchProduct()"
+                class="w-full pl-14 pr-6 py-4 rounded-2xl border-none bg-white dark:bg-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none focus:ring-2 focus:ring-indigo-500 outline-none text-lg transition-all"
               />
             </div>
           </div>
 
-          <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar pb-10">
+          <div class="lg:flex-1 lg:overflow-y-auto pr-2 custom-scrollbar pb-10">
             <div
-              id="studentList"
+              id="productList"
               class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6"
             ></div>
           </div>

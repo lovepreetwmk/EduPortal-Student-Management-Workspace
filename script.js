@@ -1,12 +1,14 @@
-let students = JSON.parse(localStorage.getItem("students")) || [];
+// Global State - Persists in Browser
+let products = JSON.parse(localStorage.getItem("products")) || [];
 
+// Page Startup
 document.addEventListener('DOMContentLoaded', () => {
-  updateUI(students);
+  updateUI(products);
   initTheme();
   lucide.createIcons();
 });
 
-// --- THEME LOGIC ---
+// --- THEME MANAGEMENT ---
 const themeToggle = document.getElementById('themeToggle');
 function initTheme() {
   if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -25,81 +27,100 @@ function previewImage(event) {
   const file = event.target.files[0];
   const preview = document.getElementById('image-preview');
   const placeholder = document.getElementById('preview-placeholder');
+  const overlay = document.getElementById('edit-overlay');
 
   if (file) {
     const reader = new FileReader();
-    reader.onload = function (e) {
+    reader.onload = (e) => {
       preview.src = e.target.result;
       preview.classList.remove('hidden');
-      preview.classList.add('scale-100');
       placeholder.classList.add('hidden');
-    }
+      if (overlay) overlay.classList.remove('hidden');
+    };
     reader.readAsDataURL(file);
   }
 }
 
-// --- ADD STUDENT ---
-function addStudent() {
+// --- ADD PRODUCT ---
+function addProduct() {
   const name = document.getElementById("name").value.trim();
   const roll = document.getElementById("roll").value.trim();
   const desc = document.getElementById("desc").value.trim();
-  const imageFile = document.getElementById("image").files[0];
+  const imageInput = document.getElementById("image");
+  const imageFile = imageInput.files[0];
 
-  if (!name || !roll || !imageFile) {
-    alert("Name, Roll Number, and Photo are required!");
+  if (!imageFile) {
+    alert("Action Required: Please upload a product photo first.");
+    return;
+  }
+  if (!name || !roll) {
+    alert("Action Required: Product Name and SKU Code are mandatory.");
     return;
   }
 
-  const autoId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
+  const autoId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
 
   const reader = new FileReader();
   reader.onload = function () {
-    const student = {
+    const product = {
       id: autoId,
       name,
       roll,
-      description: desc || "Professional student record.",
+      description: desc || "No specifications added.",
       image: reader.result
     };
 
-    students.push(student);
+    products.push(product);
     saveAndRefresh();
     clearForm();
   };
   reader.readAsDataURL(imageFile);
 }
 
+// --- UNIVERSAL UI UPDATE ---
 function updateUI(data) {
-  const container = document.getElementById("studentList");
+  const container = document.getElementById("productList");
   const countLabel = document.getElementById("stats-count");
 
   container.innerHTML = "";
-  countLabel.innerText = `${students.length} Students Registered`;
+  countLabel.innerText = `${products.length} Items`;
 
   if (data.length === 0) {
     container.innerHTML = `
-            <div class="col-span-full text-center py-24 bg-white dark:bg-slate-800 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-700">
-                <i data-lucide="users" class="mx-auto w-12 h-12 mb-2 text-slate-300"></i>
-                <p class="text-slate-400">Database is empty</p>
+            <div class="col-span-full text-center py-24 bg-white dark:bg-slate-800 rounded-[2.5rem] border-2 border-dashed border-slate-200 dark:border-slate-700">
+                <i data-lucide="package-search" class="mx-auto w-12 h-12 mb-3 text-slate-300"></i>
+                <p class="text-slate-400 font-medium">No products found in inventory</p>
             </div>`;
   } else {
-    data.forEach((student) => {
+    data.forEach((product) => {
       const card = `
-                <div class="bg-white dark:bg-slate-800 rounded-[2.5rem] overflow-hidden border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-2xl transition-all duration-500 group">
-                    <div class="h-28 bg-gradient-to-r from-blue-600 to-blue-400 p-4 flex justify-end">
-                        <button onclick="deleteStudent(${student.id})" class="p-2 bg-white/20 hover:bg-red-500 text-white rounded-xl backdrop-blur-md transition-all shadow-lg self-start">
+                <div class="bg-white dark:bg-slate-800 rounded-[2.5rem] overflow-hidden border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group">
+                    <div class="h-28 bg-slate-100 dark:bg-slate-900/50 p-4 relative flex justify-end items-start overflow-hidden">
+                        <img src="${product.image}" class="absolute inset-0 w-full h-full object-cover opacity-20 blur-[2px] group-hover:scale-110 transition-transform duration-500" />
+                        <span class="absolute top-4 left-4 z-10 bg-white/60 dark:bg-black/40 backdrop-blur-md px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter shadow-sm">
+                            ID: ${product.id}
+                        </span>
+                        <button onclick="deleteProduct(${product.id})" class="relative z-10 p-2.5 bg-white/60 dark:bg-black/40 hover:bg-red-500 hover:text-white rounded-xl backdrop-blur-md transition-all shadow-lg text-slate-600 dark:text-slate-300">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                         </button>
                     </div>
-                    <div class="px-8 pb-8 -mt-12 relative">
-                        <img src="${student.image}" class="w-24 h-24 rounded-[2rem] object-cover border-4 border-white dark:border-slate-800 shadow-xl mb-4 group-hover:rotate-3 transition-transform" />
-                        <h3 class="text-xl font-black text-slate-800 dark:text-white truncate">${student.name}</h3>
-                        <div class="flex gap-2 mt-2">
-                            <span class="text-[10px] font-bold px-2 py-1 bg-slate-100 dark:bg-slate-900 text-slate-500 rounded-md uppercase tracking-widest">ID: ${student.id}</span>
-                            <span class="text-[10px] font-bold px-2 py-1 bg-blue-50 dark:bg-blue-900/40 text-blue-600 rounded-md uppercase">Roll: ${student.roll}</span>
+
+                    <div class="px-6 pb-8 -mt-10 relative">
+                        <div class="relative inline-block mb-4">
+                            <img src="${product.image}" class="w-20 h-20 rounded-2xl object-cover border-4 border-white dark:border-slate-800 shadow-xl group-hover:rotate-2 transition-transform" />
+                            <span class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-4 border-white dark:border-slate-800 rounded-full"></span>
                         </div>
-                        <p class="mt-4 text-sm text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
-                            "${student.description}"
+                        
+                        <h3 class="text-lg font-black text-slate-800 dark:text-white truncate leading-tight uppercase tracking-tight">
+                            ${product.name}
+                        </h3>
+                        
+                        <div class="inline-flex mt-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 text-[10px] font-black rounded-lg uppercase tracking-widest">
+                            SKU: ${product.roll}
+                        </div>
+                        
+                        <p class="mt-5 text-xs text-slate-500 dark:text-slate-400 line-clamp-3 leading-relaxed font-medium">
+                            "${product.description}"
                         </p>
                     </div>
                 </div>
@@ -107,36 +128,47 @@ function updateUI(data) {
       container.insertAdjacentHTML('beforeend', card);
     });
   }
+  // Refresh icons for new content
   lucide.createIcons();
 }
 
-function searchStudent() {
+// --- SEARCH LOGIC ---
+function searchProduct() {
   const kw = document.getElementById("search").value.toLowerCase();
-  const filtered = students.filter(s =>
-    s.name.toLowerCase().includes(kw) || s.roll.toLowerCase().includes(kw)
+  const filtered = products.filter(p =>
+    p.name.toLowerCase().includes(kw) ||
+    p.roll.toLowerCase().includes(kw) ||
+    p.id.toString().includes(kw)
   );
   updateUI(filtered);
 }
 
-function deleteStudent(id) {
-  if (confirm("Delete this student permanently?")) {
-    students = students.filter(s => s.id !== id);
+// --- DELETE LOGIC ---
+function deleteProduct(id) {
+  if (confirm("Confirm permanent removal of this product from inventory?")) {
+    products = products.filter(p => p.id !== id);
     saveAndRefresh();
   }
 }
 
+// --- HELPERS ---
 function saveAndRefresh() {
-  localStorage.setItem("students", JSON.stringify(students));
-  updateUI(students);
+  localStorage.setItem("products", JSON.stringify(products));
+  updateUI(products);
 }
 
 function clearForm() {
-  ["name", "roll", "desc", "image"].forEach(f => document.getElementById(f).value = "");
+  document.getElementById("name").value = "";
+  document.getElementById("roll").value = "";
+  document.getElementById("desc").value = "";
+  document.getElementById("image").value = "";
 
-  // Reset Preview
   const preview = document.getElementById('image-preview');
   const placeholder = document.getElementById('preview-placeholder');
+  const overlay = document.getElementById('edit-overlay');
+
   preview.src = "";
   preview.classList.add('hidden');
   placeholder.classList.remove('hidden');
+  if (overlay) overlay.classList.add('hidden');
 }
